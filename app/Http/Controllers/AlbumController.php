@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Album;
 use App\Http\Requests\StoreAlbumRequest;
 use App\Http\Requests\UpdateAlbumRequest;
+use App\Http\Resources\V1\AlbumResource;
 use Illuminate\Support\Facades\Cache;
 
 class AlbumController extends Controller
@@ -17,7 +18,7 @@ class AlbumController extends Controller
     public function index()
     {
         return Cache::remember('albums-list', 60 * 60, function () {
-            return Album::all();
+            return AlbumResource::collection(Album::paginate());
         });
     }
 
@@ -31,7 +32,7 @@ class AlbumController extends Controller
     {
         $album = Album::create($request->validated());
         Cache::forget('albums-list');
-        return $album;
+        return AlbumResource::make($album);
     }
 
     /**
@@ -42,7 +43,7 @@ class AlbumController extends Controller
      */
     public function show(Album $album)
     {
-        return $album;
+        return AlbumResource::make($album);
     }
 
     /**
@@ -56,7 +57,7 @@ class AlbumController extends Controller
     {
         $album->update($request->validated());
         Cache::forget('albums-list');
-        return $album;
+        return AlbumResource::make($album);
     }
 
     /**
